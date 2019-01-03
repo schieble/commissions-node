@@ -161,15 +161,15 @@ createConnection()
 
         console.log(
           voca.padRight(uniqueInvoices[x], 30),
-          voca.padRight("$" + invoiceRevTotal, 24),
-          voca.padLeft("$" + invoiceGPTotal, 24)
+          voca.padRight("$" + invoiceRevTotal.toLocaleString("en"), 24),
+          voca.padLeft("$" + invoiceGPTotal.toLocaleString("en"), 24)
         )
       }
       console.log(voca.repeat("-", 80))
       console.log(
         voca.padRight("TOTAL", 31) +
-          voca.padRight("$" + totalRevOnSO.toString(), 24) +
-          voca.padLeft("$" + totalGPOnSO.toString(), 25)
+          voca.padRight("$" + totalRevOnSO.toLocaleString("en"), 24) +
+          voca.padLeft("$" + totalGPOnSO.toLocaleString("en"), 25)
       )
       console.log("\n\n")
 
@@ -178,8 +178,8 @@ createConnection()
     }
 
     console.log(voca.repeat("-", 80))
-    console.log("Total Revenue: ", totalRev.toString())
-    console.log("Total GP: ", totalGP.toString())
+    console.log("Total Revenue: $" + totalRev.toLocaleString("en"))
+    console.log("Total GP: $" + totalGP.toLocaleString("en"))
     console.log(voca.repeat("-", 80))
     console.log("\n\n")
   })
