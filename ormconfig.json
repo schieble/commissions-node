@@ -4,7 +4,7 @@
   "port": 5432,
   "username": "postgres",
   "password": "postgres",
-  "database": "commissions",
+  "database": "commissions2",
   "synchronize": true,
   "logging": false,
   "entities": ["src/entity/**/*.ts"],

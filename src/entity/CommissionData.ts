@@ -5,6 +5,12 @@ export class commissions_data {
   @PrimaryGeneratedColumn("uuid") id: string
 
   @Column("text")
+  customer: string
+
+  @Column("date")
+  date: string
+
+  @Column("text")
   invoice: string
 
   @Column("text")

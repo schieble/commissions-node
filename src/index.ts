@@ -9,6 +9,8 @@ import * as voca from "voca"
 
 import { commissions_data } from "./entity/CommissionData"
 
+var totalGPOnSO = 0
+var totalRevOnSO = 0
 var totalGP = 0
 var totalRev = 0
 
@@ -68,6 +70,7 @@ createConnection()
       .createQueryBuilder()
       .select("comm.so")
       .from(commissions_data, "comm")
+      .where("comm.customer = :customer", { customer: "NEWYO044" })
       .getMany()
     // console.log(salesOrders)
     const uniqueSalesOrders = getUniqueSO(salesOrders)
@@ -75,7 +78,7 @@ createConnection()
     console.log(
       "Identified ",
       uniqueSalesOrders.length,
-      " unique sales orders...\n\n"
+      " unique sales orders... for customer NEWYO044\n\n"
     )
 
     //find the corresponding invoices associated with each sales order and display them with totals
@@ -119,39 +122,65 @@ createConnection()
       for (var x = 0; x < uniqueInvoices.length; x++) {
         //Go get each invoice of this number from DB and total the valuesa
 
+        // console.log("loop: ", x)
         const gp = await getRepository(commissions_data)
           .createQueryBuilder()
-          .select("SUM(comm.gp)")
+          .select("comm.gp")
           .from(commissions_data, "comm")
           .where("comm.invoice = :invoice", { invoice: `${uniqueInvoices[x]}` })
-          .getRawMany()
+          .getMany()
+
+        //Total it up by hand
+        var invoiceGPTotal = 0
+        var invoiceRevTotal = 0
+
+        for (var count = 0; count < gp.length; count++) {
+          //   console.log(count, Number(gp[count].gp))
+          invoiceGPTotal = invoiceGPTotal + Number(gp[count].gp)
+        }
+
+        // console.log("DEBUG -> ", invoiceGPTotal)
 
         const rev = await getRepository(commissions_data)
           .createQueryBuilder()
-          .select("SUM(comm.revenue)")
+          .select("comm.revenue")
           .from(commissions_data, "comm")
           .where("comm.invoice = :invoice", { invoice: `${uniqueInvoices[x]}` })
-          .getRawMany()
+          .getMany()
 
-        totalGP = totalGP + Number(gp[0].sum)
-        totalRev = totalRev + Number(rev[0].sum)
+        for (var count = 0; count < rev.length; count++) {
+          //   console.log(count, Number(rev[count].revenue))
+          invoiceRevTotal = invoiceRevTotal + Number(rev[count].revenue)
+        }
+
+        // console.log("DEBUG -> ", rev.revenue)
+        totalGPOnSO = totalGPOnSO + invoiceGPTotal
+        totalRevOnSO = totalRevOnSO + invoiceRevTotal
+        totalGP = totalGP + invoiceGPTotal
+        totalRev = totalRev + invoiceRevTotal
 
         console.log(
           voca.padRight(uniqueInvoices[x], 30),
-          voca.padRight("$" + rev[0].sum, 24),
-          voca.padLeft("$" + gp[0].sum, 24)
+          voca.padRight("$" + invoiceRevTotal, 24),
+          voca.padLeft("$" + invoiceGPTotal, 24)
         )
       }
       console.log(voca.repeat("-", 80))
       console.log(
         voca.padRight("TOTAL", 31) +
-          voca.padRight("$" + totalRev.toString(), 24) +
-          voca.padLeft("$" + totalGP.toString(), 25)
+          voca.padRight("$" + totalRevOnSO.toString(), 24) +
+          voca.padLeft("$" + totalGPOnSO.toString(), 25)
       )
       console.log("\n\n")
 
-      totalRev = 0
-      totalGP = 0
+      totalRevOnSO = 0
+      totalGPOnSO = 0
     }
+
+    console.log(voca.repeat("-", 80))
+    console.log("Total Revenue: ", totalRev.toString())
+    console.log("Total GP: ", totalGP.toString())
+    console.log(voca.repeat("-", 80))
+    console.log("\n\n")
   })
   .catch(error => console.log(error))
